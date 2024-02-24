@@ -28,7 +28,10 @@ def publish(client, topic, datasource, delay):
     datasource.startReading()
     while True:
         time.sleep(delay)
-        data = datasource.read()
+        try:
+            data = datasource.read()
+        except StopIteration:
+            break
         msg = AggregatedDataSchema().dumps(data)
         result = client.publish(topic, msg)
         # result: [0, 1]
@@ -44,7 +47,7 @@ def run():
     # Prepare mqtt client
     client = connect_mqtt(config.MQTT_BROKER_HOST, config.MQTT_BROKER_PORT)
     # Prepare datasource
-    datasource = FileDatasource("data/data.csv", "data/gps_data.csv")
+    datasource = FileDatasource("data/accelerometer.csv", "data/gps.csv")
     # Infinity publish data
     publish(client, config.MQTT_TOPIC, datasource, config.DELAY)
 
