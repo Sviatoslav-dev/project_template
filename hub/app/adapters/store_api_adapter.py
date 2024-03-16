@@ -9,6 +9,9 @@ from app.entities.processed_agent_data import ProcessedAgentData
 from app.interfaces.store_gateway import StoreGateway
 
 
+# select * from public.processed_agent_data;
+
+
 class StoreApiAdapter(StoreGateway):
     def __init__(self, api_base_url):
         self.api_base_url = api_base_url
@@ -21,4 +24,10 @@ class StoreApiAdapter(StoreGateway):
         Returns:
             bool: True if the data is successfully saved, False otherwise.
         """
-        # Implement it
+        data = json.dumps([processed_agent_data.model_dump(mode='json') for processed_agent_data in
+                           processed_agent_data_batch])
+        response = requests.post(
+            f"{self.api_base_url}/processed_agent_data/",
+            data=data,
+        )
+        return response.status_code == 200
